@@ -50,6 +50,7 @@
     "kleur": "^4.0.0",
     "mime": "^2.4.4",
     "mocha": "^8.0.0",
+    "mocha-junit-reporter": "*",
     "node-fetch": "^2.6.0",
     "npm-run-all": "^4.1.5",
     "polka": "^0.5.2",
@@ -78,8 +79,8 @@
     "svelte": "^3.17.3"
   },
   "scripts": {
-    "test": "mocha --config=.mocharc.yml",
-    "pretest": "npm run check",
+    "test": "mocha --file unit-error-hack.js --reporter mocha-junit-reporter --config=.mocharc.yml",
+    "pretest1": "npm run check",
     "build": "rimraf dist && rollup -c",
     "check": "rimraf dist && cross-env TS_CHECK_ENABLED=true rollup -c",
     "lint": "eslint '{src,runtime,test}/**/*.{ts,js,svelte}' && cd site && npm run lint",
