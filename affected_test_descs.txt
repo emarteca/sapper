@@ -1,0 +1,4 @@
+errors display correct stack trace sequences on server error referring to source file
+"errors displays a good error messsage when accessing ""document"" variable on server"
+layout only recreates components when necessary
+layout survives the tests with no server errors
