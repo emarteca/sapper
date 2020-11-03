@@ -1,395 +1,708 @@
+const perf_hooks = require('perf_hooks'); 
+
 import * as assert from 'assert';
+
 import * as http from 'http';
+
 import {build} from '../../../api';
+
 import {AppRunner} from '../AppRunner';
 
+
 declare let deleted: { id: number };
+
 declare let el: any;
+
 
 type Response = { headers: http.IncomingHttpHeaders, body: string };
 
-function get(url: string, opts: http.RequestOptions = {}): Promise<Response> {
-	return new Promise((fulfil, reject) => {
-		const req = http.get(url, opts, res => {
-			res.on('error', reject);
 
-			let body = '';
-			res.on('data', chunk => body += chunk);
-			res.on('end', () => {
-				fulfil({
+function get(url: string, opts: http.RequestOptions = {}): Promise<Response> 
+{
+	
+return new Promise((fulfil, reject) => 
+{
+		
+const req = http.get(url, opts, res => 
+{
+			
+res.on('error', reject);
+
+			
+let body = '';
+			
+res.on('data', chunk => body += chunk);
+			
+res.on('end', () => 
+{
+				
+fulfil({
 					headers: res.headers,
 					body
 				});
-			});
-		});
+			})
+;
+		})
+;
 
-		req.on('error', reject);
-	});
+		
+req.on('error', reject);
+	})
+;
 }
 
-describe('basics', function() {
-	this.timeout(10000);
 
-	let r: AppRunner;
+describe('basics', function() 
+{
+	
+this.timeout(10000);
+
+	
+let r: AppRunner;
 
 	// hooks
-	before('build app', () => build({ cwd: __dirname }));
-	before('start runner', async () => {
-		r = await new AppRunner().start(__dirname);
-	});
+	
+before('build app', () => build({ cwd: __dirname }));
+	
+before('start runner', async () => 
+{
+		
+r = await new AppRunner().start(__dirname);
+	})
+;
 
-	after(() => r && r.end());
+	
+after(() => r && r.end());
 
 	// tests
-	it('serves /', async () => {
-		await r.load('/');
+	
+it('serves /', async () => 
+{
+		
+await r.load('/');
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'Great success!'
 		);
-	});
+	})
+;
 
-	it('serves /?', async () => {
-		await r.load('/?');
+	
+it('serves /?', async () => 
+{
+		
+await r.load('/?');
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'Great success!'
 		);
-	});
+	})
+;
 
-	it('serves static route', async () => {
-		await r.load('/a');
+	
+it('serves static route', async () => 
+{
+		
+await r.load('/a');
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'a'
 		);
-	});
+	})
+;
 
-	it('serves static route from dir/index.html file', async () => {
-		await r.load('/b');
+	
+it('serves static route from dir/index.html file', async () => 
+{
+		
+await r.load('/b');
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'b'
 		);
-	});
+	})
+;
 
-	it('serves static route under client directory', async () => {
-		await r.load('/client/foo');
-		assert.equal(await r.text('h1'), 'foo');
+	
+it('serves static route under client directory', async () => 
+{
+		
+await r.load('/client/foo');
+		
+assert.equal(await r.text('h1'), 'foo');
 
-		await r.load('/client/bar');
-		assert.equal(await r.text('h1'), 'bar');
+		
+await r.load('/client/bar');
+		
+assert.equal(await r.text('h1'), 'bar');
 
-		await r.load('/client/bar/b');
-		assert.equal(await r.text('h1'), 'b');
-	});
+		
+await r.load('/client/bar/b');
+		
+assert.equal(await r.text('h1'), 'b');
+	})
+;
 
-	it('serves dynamic route', async () => {
-		await r.load('/test-slug');
+	
+it('serves dynamic route', async () => 
+{
+		
+await r.load('/test-slug');
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'test-slug'
 		);
-	});
+	})
+;
 
-	it('navigates to a new page without reloading', async () => {
-		await r.load('/');
-		await r.sapper.start();
-		await r.sapper.prefetchRoutes();
+	
+it('navigates to a new page without reloading', async () => 
+{
+		
+await r.load('/');
+		
 
-		const requests: string[] = await r.capture_requests(async () => {
-			await r.page.click('a[href="a"]');
-			await r.wait();
-		});
+var TIMING_TEMP_VAR_AUTOGEN129__RANDOM = perf_hooks.performance.now();
+ await  r.sapper.start();
+console.log("/home/ellen/Documents/ASJProj/TESTING_reordering/sapper/test/apps/basics/test.ts& [101, 2; 101, 25]& TEMP_VAR_AUTOGEN129__RANDOM& " + (perf_hooks.performance.now() - TIMING_TEMP_VAR_AUTOGEN129__RANDOM));
+ 
+		
+await r.sapper.prefetchRoutes();
 
-		assert.deepEqual(requests, []);
+		
+const requests: string[] = await r.capture_requests(async () => 
+{
+			
+await r.page.click('a[href="a"]');
+			
+await r.wait();
+		})
+;
 
-		assert.equal(
+		
+assert.deepEqual(requests, []);
+
+		
+assert.equal(
 			await r.text('h1'),
 			'a'
 		);
-	});
+	})
+;
 
-	it('navigates programmatically', async () => {
-		await r.load('/a');
-		await r.sapper.start();
-		await r.sapper.goto('b');
+	
+it('navigates programmatically', async () => 
+{
+		
+await r.load('/a');
+		
+await r.sapper.start();
+		
+await r.sapper.goto('b');
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'b'
 		);
-	});
+	})
+;
 
-	it('prefetches programmatically', async () => {
-		await r.load('/a');
-		await r.sapper.start();
+	
+it('prefetches programmatically', async () => 
+{
+		
+await r.load('/a');
+		
 
-		const requests = await r.capture_requests(() => r.sapper.prefetch('b'));
+var TIMING_TEMP_VAR_AUTOGEN149__RANDOM = perf_hooks.performance.now();
+ await  r.sapper.start();
+console.log("/home/ellen/Documents/ASJProj/TESTING_reordering/sapper/test/apps/basics/test.ts& [130, 2; 130, 25]& TEMP_VAR_AUTOGEN149__RANDOM& " + (perf_hooks.performance.now() - TIMING_TEMP_VAR_AUTOGEN149__RANDOM));
+ 
 
-		assert.equal(requests.length, 2);
-		assert.equal(requests[1], `${r.base}/b.json`);
-	});
+		
+const requests = await r.capture_requests(() => r.sapper.prefetch('b'));
+
+		
+assert.equal(requests.length, 2);
+		
+assert.equal(requests[1], `${r.base}/b.json`);
+	})
+;
 
 	// TODO equivalent test for a webpack app
-	it('sets Content-Type, Link...modulepreload', async () => {
-		const { headers } = await get(r.base);
+	
+it('sets Content-Type, Link...modulepreload', async () => 
+{
+		
+const { headers } = await get(r.base);
 
-		assert.equal(
+		
+assert.equal(
 			headers['content-type'],
 			'text/html'
 		);
 
 		// TODO preload more than just the entry point
-		const regex = /<\/client\/client\.\w+\.js>;rel="modulepreload"/;
-		const link = <string>headers['link'];
+		
+const regex = /<\/client\/client\.\w+\.js>;rel="modulepreload"/;
+		
+const link = <string>headers['link'];
 
-		assert.ok(regex.test(link), link);
-	});
+		
+assert.ok(regex.test(link), link);
+	})
+;
 
-	it('calls a delete handler', async () => {
-		await r.load('/delete-test');
-		await r.sapper.start();
+	
+it('calls a delete handler', async () => 
+{
+		
+await r.load('/delete-test');
+		
 
-		await r.page.click('.del');
-		await r.page.waitForFunction(() => deleted);
+var TIMING_TEMP_VAR_AUTOGEN159__RANDOM = perf_hooks.performance.now();
+ await  r.sapper.start();
+console.log("/home/ellen/Documents/ASJProj/TESTING_reordering/sapper/test/apps/basics/test.ts& [156, 2; 156, 25]& TEMP_VAR_AUTOGEN159__RANDOM& " + (perf_hooks.performance.now() - TIMING_TEMP_VAR_AUTOGEN159__RANDOM));
+ 
 
-		assert.equal(await r.page.evaluate(() => deleted.id), 42);
-	});
+		
+await r.page.click('.del');
+		
+await r.page.waitForFunction(() => deleted);
 
-	it('hydrates initial route', async () => {
-		await r.load('/');
+		
+assert.equal(await r.page.evaluate(() => deleted.id), 42);
+	})
+;
 
-		await r.page.evaluate(() => {
-			el = document.querySelector('.hydrate-test');
-		});
+	
+it('hydrates initial route', async () => 
+{
+		
+await r.load('/');
 
-		await r.sapper.start();
+		
+await r.page.evaluate(() => 
+{
+			
+el = document.querySelector('.hydrate-test');
+		})
+;
 
-		assert.ok(await r.page.evaluate(() => {
-			return document.querySelector('.hydrate-test') === el;
-		}));
-	});
+		
+await r.sapper.start();
 
-	it('does not attempt client-side navigation to server routes', async () => {
-		await r.load('/');
-		await r.sapper.start();
-		await r.sapper.prefetchRoutes();
+		
+assert.ok(await r.page.evaluate(() => 
+{
+			
+return document.querySelector('.hydrate-test') === el;
+		})
+);
+	})
+;
 
-		await r.page.click('[href="ambiguous/ok.json"]');
-		await r.wait();
+	
+it('does not attempt client-side navigation to server routes', async () => 
+{
+		
+await r.load('/');
+		
 
-		assert.equal(
+var TIMING_TEMP_VAR_AUTOGEN167__RANDOM = perf_hooks.performance.now();
+ await  r.sapper.start();
+console.log("/home/ellen/Documents/ASJProj/TESTING_reordering/sapper/test/apps/basics/test.ts& [180, 2; 180, 25]& TEMP_VAR_AUTOGEN167__RANDOM& " + (perf_hooks.performance.now() - TIMING_TEMP_VAR_AUTOGEN167__RANDOM));
+ 
+		
+await r.sapper.prefetchRoutes();
+
+		
+await r.page.click('[href="ambiguous/ok.json"]');
+		
+await r.wait();
+
+		
+assert.equal(
 			await r.text('body'),
 			'ok'
 		);
-	});
+	})
+;
 
-	it('allows reserved words as route names', async () => {
-		await r.load('/const');
-		await r.sapper.start();
+	
+it('allows reserved words as route names', async () => 
+{
+		
+await r.load('/const');
+		
+await r.sapper.start();
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'reserved words are okay as routes'
 		);
-	});
+	})
+;
 
-	it('accepts value-less query string parameter on server', async () => {
-		await r.load('/echo-query?message');
+	
+it('accepts value-less query string parameter on server', async () => 
+{
+		
+await r.load('/echo-query?message');
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'{"message":""}'
 		);
-	});
+	})
+;
 
-	it('accepts value-less query string parameter on client', async () => {
-		await r.load('/');
-		await r.sapper.start();
-		await r.sapper.prefetchRoutes();
+	
+it('accepts value-less query string parameter on client', async () => 
+{
+		
+await r.load('/');
+		
 
-		await r.page.click('a[href="echo-query?message"]');
-		await r.wait();
+var TIMING_TEMP_VAR_AUTOGEN173__RANDOM = perf_hooks.performance.now();
+ await  r.sapper.start();
+console.log("/home/ellen/Documents/ASJProj/TESTING_reordering/sapper/test/apps/basics/test.ts& [213, 2; 213, 25]& TEMP_VAR_AUTOGEN173__RANDOM& " + (perf_hooks.performance.now() - TIMING_TEMP_VAR_AUTOGEN173__RANDOM));
+ 
+		
+await r.sapper.prefetchRoutes();
 
-		assert.equal(
+		
+await r.page.click('a[href="echo-query?message"]');
+		
+await r.wait();
+
+		
+assert.equal(
 			await r.text('h1'),
 			'{"message":""}'
 		);
-	});
+	})
+;
 
-	it('accepts duplicated query string parameter on server', async () => {
-		await r.load('/echo-query?p=one&p=two');
+	
+it('accepts duplicated query string parameter on server', async () => 
+{
+		
+await r.load('/echo-query?p=one&p=two');
 
-		assert.equal(
+		
+assert.equal(
 			await r.text('h1'),
 			'{"p":["one","two"]}'
 		);
-	});
+	})
+;
 
-	it('accepts duplicated query string parameter on client', async () => {
-		await r.load('/');
-		await r.sapper.start();
-		await r.sapper.prefetchRoutes();
+	
+it('accepts duplicated query string parameter on client', async () => 
+{
+		
+await r.load('/');
+		
 
-		await r.page.click('a[href="echo-query?p=one&p=two"]');
+var TIMING_TEMP_VAR_AUTOGEN180__RANDOM = perf_hooks.performance.now();
+ await  r.sapper.start();
+console.log("/home/ellen/Documents/ASJProj/TESTING_reordering/sapper/test/apps/basics/test.ts& [236, 2; 236, 25]& TEMP_VAR_AUTOGEN180__RANDOM& " + (perf_hooks.performance.now() - TIMING_TEMP_VAR_AUTOGEN180__RANDOM));
+ 
+		
+await r.sapper.prefetchRoutes();
 
-		assert.equal(
+		
+await r.page.click('a[href="echo-query?p=one&p=two"]');
+
+		
+assert.equal(
 			await r.text('h1'),
 			'{"p":["one","two"]}'
 		);
-	});
+	})
+;
 
-	it('can access host through page store', async () => {
-		await r.load('/host');
+	
+it('can access host through page store', async () => 
+{
+		
+await r.load('/host');
 
-		assert.equal(await r.text('h1'), 'localhost');
+		
+assert.equal(await r.text('h1'), 'localhost');
 
-		await r.sapper.start();
-		assert.equal(await r.text('h1'), 'localhost');
-	});
+		
+await r.sapper.start();
+		
+assert.equal(await r.text('h1'), 'localhost');
+	})
+;
 
 	// skipped because Nightmare doesn't seem to focus the <a> correctly
-	it('resets the active element after navigation', async () => {
-		await r.load('/');
-		await r.sapper.start();
-		await r.sapper.prefetchRoutes();
+	
+it('resets the active element after navigation', async () => 
+{
+		
+await r.load('/');
+		
 
-		await r.page.click('[href="a"]');
-		await r.wait();
+var TIMING_TEMP_VAR_AUTOGEN185__RANDOM = perf_hooks.performance.now();
+ await  r.sapper.start();
+console.log("/home/ellen/Documents/ASJProj/TESTING_reordering/sapper/test/apps/basics/test.ts& [259, 2; 259, 25]& TEMP_VAR_AUTOGEN185__RANDOM& " + (perf_hooks.performance.now() - TIMING_TEMP_VAR_AUTOGEN185__RANDOM));
+ 
+		
+await r.sapper.prefetchRoutes();
 
-		assert.equal(
+		
+await r.page.click('[href="a"]');
+		
+await r.wait();
+
+		
+assert.equal(
 			await r.page.evaluate(() => document.activeElement.nodeName),
 			'BODY'
 		);
-	});
+	})
+;
 
-	it('replaces %sapper.xxx% tags safely', async () => {
-		await r.load('/unsafe-replacement');
-		await r.sapper.start();
+	
+it('replaces %sapper.xxx% tags safely', async () => 
+{
+		
+await r.load('/unsafe-replacement');
+		
+await r.sapper.start();
 
-		const html = String(await r.page.evaluate(() => document.body.innerHTML));
-		assert.equal(html.indexOf('%sapper'), -1);
-	});
+		
+const html = String(await r.page.evaluate(() => document.body.innerHTML));
+		
+assert.equal(html.indexOf('%sapper'), -1);
+	})
+;
 
-	it('navigates between routes with empty parts', async () => {
-		await r.load('/dirs/foo');
-		await r.sapper.start();
+	
+it('navigates between routes with empty parts', async () => 
+{
+		
+await r.load('/dirs/foo');
+		
+await r.sapper.start();
 
-		assert.equal(await r.text('h1'), 'foo');
-		await r.page.click('[href="dirs/bar"]');
-		await r.wait();
-		assert.equal(await r.text('h1'), 'bar');
-	});
+		
+assert.equal(await r.text('h1'), 'foo');
+		
+await r.page.click('[href="dirs/bar"]');
+		
+await r.wait();
+		
+assert.equal(await r.text('h1'), 'bar');
+	})
+;
 
-	it('navigates to ...rest', async () => {
-		await r.load('/abc/xyz');
-		await r.sapper.start();
+	
+it('navigates to ...rest', async () => 
+{
+		
+await r.load('/abc/xyz');
+		
+await r.sapper.start();
 
-		assert.equal(await r.text('h1'), 'abc,xyz');
-		await r.page.click('[href="xyz/abc/def/ghi"]');
-		await r.wait();
-		assert.equal(await r.text('h1'), 'xyz,abc,def,ghi');
-		assert.equal(await r.text('h2'), 'xyz,abc,def,ghi');
-		await r.page.click('[href="xyz/abc/def"]');
-		await r.wait();
-		assert.equal(await r.text('h1'), 'xyz,abc,def');
-		assert.equal(await r.text('h2'), 'xyz,abc,def');
-		await r.page.click('[href="xyz/abc/def"]');
-		await r.wait();
-		assert.equal(await r.text('h1'), 'xyz,abc,def');
-		assert.equal(await r.text('h2'), 'xyz,abc,def');
-		await r.page.click('[href="xyz/abc"]');
-		await r.wait();
-		assert.equal(await r.text('h1'), 'xyz,abc');
-		assert.equal(await r.text('h2'), 'xyz,abc');
-		await r.page.click('[href="xyz/abc/deep"]');
-		await r.wait();
-		assert.equal(await r.text('h1'), 'xyz,abc');
-		assert.equal(await r.text('h2'), 'xyz,abc');
-		await r.page.click('[href="xyz/abc/qwe/deep.json"]');
-		await r.wait();
-		assert.equal(
+		
+assert.equal(await r.text('h1'), 'abc,xyz');
+		
+await r.page.click('[href="xyz/abc/def/ghi"]');
+		
+await r.wait();
+		
+assert.equal(await r.text('h1'), 'xyz,abc,def,ghi');
+		
+assert.equal(await r.text('h2'), 'xyz,abc,def,ghi');
+		
+await r.page.click('[href="xyz/abc/def"]');
+		
+await r.wait();
+		
+assert.equal(await r.text('h1'), 'xyz,abc,def');
+		
+assert.equal(await r.text('h2'), 'xyz,abc,def');
+		
+await r.page.click('[href="xyz/abc/def"]');
+		
+await r.wait();
+		
+assert.equal(await r.text('h1'), 'xyz,abc,def');
+		
+assert.equal(await r.text('h2'), 'xyz,abc,def');
+		
+await r.page.click('[href="xyz/abc"]');
+		
+await r.wait();
+		
+assert.equal(await r.text('h1'), 'xyz,abc');
+		
+assert.equal(await r.text('h2'), 'xyz,abc');
+		
+await r.page.click('[href="xyz/abc/deep"]');
+		
+await r.wait();
+		
+assert.equal(await r.text('h1'), 'xyz,abc');
+		
+assert.equal(await r.text('h2'), 'xyz,abc');
+		
+await r.page.click('[href="xyz/abc/qwe/deep.json"]');
+		
+await r.wait();
+		
+assert.equal(
 			await r.text('body'),
 			'xyz,abc,qwe'
 		);
-	});
+	})
+;
 
-	it('navigates between dynamic routes with same segments', async () => {
-		await r.load('/dirs/bar/xyz');
-		await r.sapper.start();
+	
+it('navigates between dynamic routes with same segments', async () => 
+{
+		
+await r.load('/dirs/bar/xyz');
+		
+await r.sapper.start();
 
-		assert.strictEqual(await r.text('h1'), 'A page');
+		
+assert.strictEqual(await r.text('h1'), 'A page');
 
-		await r.page.click('[href="dirs/foo/xyz"]');
-		await r.wait();
-		assert.strictEqual(await r.text('h1'), 'B page');
-	});
+		
+await r.page.click('[href="dirs/foo/xyz"]');
+		
+await r.wait();
+		
+assert.strictEqual(await r.text('h1'), 'B page');
+	})
+;
 
-	it('find regexp routes', async () => {
-		await r.load('/qwe');
-		await r.sapper.start();
+	
+it('find regexp routes', async () => 
+{
+		
+await r.load('/qwe');
+		
+await r.sapper.start();
 
-		assert.equal(await r.text('h1'), 'qwe');
+		
+assert.equal(await r.text('h1'), 'qwe');
 
-		await r.page.click('[href="234"]');
-		await r.wait();
+		
+await r.page.click('[href="234"]');
+		
+await r.wait();
 
-		assert.equal(await r.text('h1'), 'Regexp page 234');
+		
+assert.equal(await r.text('h1'), 'Regexp page 234');
 
-		await r.page.click('[href="regexp/234"]');
-		await r.wait();
-		assert.equal(await r.text('h1'), 'Nested regexp page 234');
-	});
+		
+await r.page.click('[href="regexp/234"]');
+		
+await r.wait();
+		
+assert.equal(await r.text('h1'), 'Nested regexp page 234');
+	})
+;
 
-	it('runs server route handlers before page handlers, if they match', async () => {
-		const json = await get(`${r.base}/middleware`, {
+	
+it('runs server route handlers before page handlers, if they match', async () => 
+{
+		
+const json = await get(`${r.base}/middleware`, {
 			headers: {
 				Accept: 'application/json'
 			}
 		});
 
-		assert.equal(json.body, '{"json":true}');
+		
+assert.equal(json.body, '{"json":true}');
 
-		const html = await get(`${r.base}/middleware`);
+		
+const html = await get(`${r.base}/middleware`);
 
-		assert.ok(html.body.indexOf('<h1>HTML</h1>') !== -1);
-	});
+		
+assert.ok(html.body.indexOf('<h1>HTML</h1>') !== -1);
+	})
+;
 
-	it('invalidates page when a segment is skipped', async () => {
-		await r.load('/skipped/x/1');
-		await r.sapper.start();
-		await r.sapper.prefetchRoutes();
+	
+it('invalidates page when a segment is skipped', async () => 
+{
+		
+await r.load('/skipped/x/1');
+		
 
-		await r.page.click('a[href="skipped/y/1"]');
-		await r.wait();
+var TIMING_TEMP_VAR_AUTOGEN198__RANDOM = perf_hooks.performance.now();
+ await  r.sapper.start();
+console.log("/home/ellen/Documents/ASJProj/TESTING_reordering/sapper/test/apps/basics/test.ts& [365, 2; 365, 25]& TEMP_VAR_AUTOGEN198__RANDOM& " + (perf_hooks.performance.now() - TIMING_TEMP_VAR_AUTOGEN198__RANDOM));
+ 
+		
+await r.sapper.prefetchRoutes();
 
-		assert.equal(
+		
+await r.page.click('a[href="skipped/y/1"]');
+		
+await r.wait();
+
+		
+assert.equal(
 			await r.text('h1'),
 			'y:1'
 		);
-	});
+	})
+;
 
-	it('page store functions as expected', async () => {
-		await r.load('/store');
-		await r.sapper.start();
+	
+it('page store functions as expected', async () => 
+{
+		
+await r.load('/store');
+		
+await r.sapper.start();
 
-		assert.equal(await r.text('h1'), 'Test');
-		assert.equal(await r.text('h2'), 'Called 1 time');
+		
+assert.equal(await r.text('h1'), 'Test');
+		
+assert.equal(await r.text('h2'), 'Called 1 time');
 
-		await r.page.click('a[href="store/result"]');
-		await r.wait();
+		
+await r.page.click('a[href="store/result"]');
+		
+await r.wait();
 
-		assert.equal(await r.text('h1'), 'Result');
-		assert.equal(await r.text('h2'), 'Called 1 time');
-	});
+		
+assert.equal(await r.text('h1'), 'Result');
+		
+assert.equal(await r.text('h2'), 'Called 1 time');
+	})
+;
 
-	it('survives the tests with no server errors', () => {
-		assert.deepEqual(r.errors, []);
-	});
-});
+	
+it('survives the tests with no server errors', () => 
+{
+		
+assert.deepEqual(r.errors, []);
+	})
+;
+})
+;
